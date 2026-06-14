@@ -1,0 +1,53 @@
+@use '../styles/variables' as v;
+@use '../styles/mixins' as m;
+
+.card {
+  @include m.card-base;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+
+  &:hover {
+    box-shadow: v.$shadow-md;
+    transform: translateY(-1px);
+  }
+}
+
+.title {
+  font-size: 1.05rem;
+  color: v.$gray-900;
+  font-weight: 600;
+}
+
+.summary {
+  color: v.$gray-500;
+  line-height: 1.6;
+  font-size: 0.93rem;
+}
+
+.footer {
+  @include m.flex-between;
+  margin-top: 0.5rem;
+}
+
+.meta {
+  color: v.$gray-400;
+  font-size: 0.82rem;
+}
+
+.readBtn {
+  padding: 0.4rem 1.1rem;
+  background: v.$blue-800;
+  color: #fff;
+  border: none;
+  border-radius: v.$radius-sm;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  transition: background 0.15s;
+
+  &:hover { background: v.$blue-700; }
+}

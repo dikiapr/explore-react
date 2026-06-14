@@ -1,0 +1,20 @@
+@use '../styles/variables' as v;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  padding: 1.75rem 2rem;
+  overflow-y: auto;
+  background: v.$gray-50;
+}
