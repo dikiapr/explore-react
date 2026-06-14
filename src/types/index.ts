@@ -1,12 +1,11 @@
 export interface User {
-  id: string;
+  id: number;
   username: string;
   email: string;
-  password: string;
 }
 
 export interface Article {
-  id: string;
+  id: number;
   title: string;
   summary: string;
   content: string;
