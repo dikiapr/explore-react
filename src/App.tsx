@@ -1,4 +1,9 @@
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from './store/hooks';
+import { fetchArticles } from './store/slices/articlesSlice';
+import { restoreSession } from './store/slices/authSlice';
+import { getToken } from './services/apiClient';
 import MasterLayout from './layout/MasterLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
@@ -8,6 +13,27 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 
 export default function App() {
+  const dispatch = useAppDispatch();
+  const sessionStatus = useAppSelector((s) => s.auth.sessionStatus);
+  const currentUser = useAppSelector((s) => s.auth.currentUser);
+
+  useEffect(() => {
+    dispatch(fetchArticles());
+    if (getToken()) {
+      dispatch(restoreSession());
+    }
+  }, [dispatch]);
+
+  const isRestoring = sessionStatus === 'loading' && !currentUser;
+
+  if (isRestoring) {
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--gray-500)' }}>
+        Memuat sesi...
+      </div>
+    );
+  }
+
   return (
     <Routes>
       <Route element={<MasterLayout />}>

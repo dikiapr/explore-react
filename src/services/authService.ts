@@ -1,39 +1,29 @@
+import { api, setToken, clearToken } from './apiClient';
 import type { User } from '../types';
 
-const USERS_KEY = 'artikelku_users';
-const SESSION_KEY = 'artikelku_session';
+interface AuthResponse { token: string; user: User; }
 
-function loadUsers(): User[] {
-  const raw = localStorage.getItem(USERS_KEY);
-  return raw ? (JSON.parse(raw) as User[]) : [];
+export async function register(data: { username: string; email: string; password: string }): Promise<User> {
+  const res = await api<AuthResponse>('/auth/register', { method: 'POST', body: JSON.stringify(data) });
+  setToken(res.token);
+  return res.user;
 }
 
-function saveUsers(users: User[]): void {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-export function register(data: { username: string; email: string; password: string }): User {
-  const users = loadUsers();
-  if (users.find((u) => u.email === data.email)) {
-    throw new Error('Email sudah terdaftar.');
-  }
-  const newUser: User = { id: Date.now().toString(), ...data };
-  saveUsers([...users, newUser]);
-  return newUser;
-}
-
-export function login(email: string, password: string): User {
-  const user = loadUsers().find((u) => u.email === email && u.password === password);
-  if (!user) throw new Error('Email atau password salah.');
-  localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-  return user;
+export async function login(email: string, password: string): Promise<User> {
+  const res = await api<AuthResponse>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+  setToken(res.token);
+  return res.user;
 }
 
 export function logout(): void {
-  localStorage.removeItem(SESSION_KEY);
+  clearToken();
 }
 
-export function getCurrentUser(): User | null {
-  const raw = localStorage.getItem(SESSION_KEY);
-  return raw ? (JSON.parse(raw) as User) : null;
+export async function getCurrentUser(): Promise<User> {
+  try {
+    return await api<User>('/auth/me');
+  } catch (e) {
+    clearToken();
+    throw e;
+  }
 }
