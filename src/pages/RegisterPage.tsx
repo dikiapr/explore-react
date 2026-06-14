@@ -18,7 +18,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
     if (!username.trim() || !email.trim() || !password.trim()) {
@@ -27,9 +27,12 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
-      authService.register({ username: username.trim(), email: email.trim(), password });
-      const loggedIn = authService.login(email.trim(), password);
-      dispatch(loginSuccess(loggedIn));
+      const user = await authService.register({
+        username: username.trim(),
+        email: email.trim(),
+        password,
+      });
+      dispatch(loginSuccess(user));
       navigate('/', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal mendaftar.');

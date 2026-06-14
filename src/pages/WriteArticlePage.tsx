@@ -17,19 +17,26 @@ export default function WriteArticlePage() {
   const [summary, setSummary] = useState('');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!currentUser) return;
+    setError(null);
     setLoading(true);
-    const newArticle = articleService.addArticle({
-      title: title.trim(),
-      summary: summary.trim(),
-      content: content.trim(),
-      authorName: currentUser.username,
-    });
-    dispatch(addArticle(newArticle));
-    navigate('/');
+    try {
+      const created = await articleService.addArticle({
+        title: title.trim(),
+        summary: summary.trim(),
+        content: content.trim(),
+      });
+      dispatch(addArticle(created));
+      navigate('/');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal menerbitkan artikel.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -60,6 +67,7 @@ export default function WriteArticlePage() {
           rows={12}
           placeholder="Tulis isi artikel selengkap-lengkapnya di sini..."
         />
+        {error && <p className={s.formError}>{error}</p>}
         <div className={s.actions}>
           <Button type="submit" loading={loading}>Terbitkan Artikel</Button>
           <Button type="button" variant="secondary" onClick={() => navigate(-1)}>Batal</Button>

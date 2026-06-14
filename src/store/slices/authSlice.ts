@@ -1,15 +1,20 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { User } from '../../types';
 import * as authService from '../../services/authService';
+import { getToken } from '../../services/apiClient';
+
+export type SessionStatus = 'idle' | 'loading' | 'failed';
 
 interface AuthState {
   currentUser: User | null;
   error: string | null;
+  sessionStatus: SessionStatus;
 }
 
 const initialState: AuthState = {
-  currentUser: authService.getCurrentUser(),
+  currentUser: null,
   error: null,
+  sessionStatus: getToken() ? 'loading' : 'idle',
 };
 
 export const loginThunk = createAsyncThunk<
@@ -20,9 +25,20 @@ export const loginThunk = createAsyncThunk<
   'auth/loginThunk',
   async (cred, { rejectWithValue }) => {
     try {
-      return authService.login(cred.email, cred.password);
+      return await authService.login(cred.email, cred.password);
     } catch (e) {
       return rejectWithValue(e instanceof Error ? e.message : 'Gagal login');
+    }
+  },
+);
+
+export const restoreSession = createAsyncThunk<User | null>(
+  'auth/restoreSession',
+  async () => {
+    try {
+      return await authService.getCurrentUser();
+    } catch {
+      return null;
     }
   },
 );
@@ -49,6 +65,15 @@ const authSlice = createSlice({
       .addCase(loginThunk.fulfilled, (state, action) => { state.currentUser = action.payload; })
       .addCase(loginThunk.rejected, (state, action) => {
         state.error = action.payload ?? 'Gagal login';
+      })
+      .addCase(restoreSession.pending, (state) => { state.sessionStatus = 'loading'; })
+      .addCase(restoreSession.fulfilled, (state, action) => {
+        state.currentUser = action.payload;
+        state.sessionStatus = 'idle';
+      })
+      .addCase(restoreSession.rejected, (state) => {
+        state.currentUser = null;
+        state.sessionStatus = 'failed';
       });
   },
 });
