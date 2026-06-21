@@ -12,3 +12,9 @@ export interface Article {
   authorName: string;
   createdAt: string;
 }
+
+export interface ChatMessage {
+  user: string;
+  message: string;
+  sentAt: string;
+}

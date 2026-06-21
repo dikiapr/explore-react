@@ -11,6 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import ArticleDetailPage from './pages/ArticleDetailPage';
 import WriteArticlePage from './pages/WriteArticlePage';
+import ChatPage from './pages/ChatPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 
@@ -61,6 +62,7 @@ export default function App() {
         <Route path="/article/:id" element={<ArticleDetailPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/write" element={<WriteArticlePage />} />
+          <Route path="/chat" element={<ChatPage />} />
         </Route>
       </Route>
       <Route path="/login" element={<LoginPage />} />

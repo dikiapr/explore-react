@@ -9,6 +9,7 @@ export default function Sidebar() {
     <aside className={s.sidebar}>
       <NavLink to="/" end className={cls}>Home</NavLink>
       <NavLink to="/write" className={cls}>Tulis Artikel</NavLink>
+      <NavLink to="/chat" className={cls}>Chat</NavLink>
     </aside>
   );
 }
