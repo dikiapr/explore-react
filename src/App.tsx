@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from './store/hooks';
-import { fetchArticles } from './store/slices/articlesSlice';
+import { addArticle, fetchArticles } from './store/slices/articlesSlice';
 import { restoreSession } from './store/slices/authSlice';
 import { getToken } from './services/apiClient';
+import { startConnection, onArticleCreated, offArticleCreated } from './services/signalrService';
+import type { Article } from './types';
 import MasterLayout from './layout/MasterLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
@@ -22,6 +24,24 @@ export default function App() {
     if (getToken()) {
       dispatch(restoreSession());
     }
+  }, [dispatch]);
+
+  useEffect(() => {
+    let active = true;
+
+    startConnection()
+      .then(() => {
+        if (!active) return; // efek sudah di-cleanup, jangan daftar listener
+        onArticleCreated((article) => {
+          dispatch(addArticle(article as Article));
+        });
+      })
+      .catch((err) => console.error('[SignalR] Gagal connect:', err));
+
+    return () => {
+      active = false;
+      offArticleCreated(); // cukup lepas listener; koneksi global biarkan hidup
+    };
   }, [dispatch]);
 
   const isRestoring = sessionStatus === 'loading' && !currentUser;
